@@ -1,4 +1,17 @@
-# Tiny Image — 本地验收与发布待办
+# Tiny Image — 部署结果与验收记录
+
+## 2026-11-03 · 实际 Cloudflare Pages 部署（T04-19）
+
+- 独立仓库已更名为 `taomingyang123/tinystool-image-tools`，本地 origin 已同步；Pages 同名，Git 集成 main 自动部署，构建命令 `yarn check`，输出 `.output/public`，Node 22.22.3 / Yarn 4.5.0。
+- 修复 `public/_headers` 中 `*.wasm` 无效规则（曾导致 JS 被错误标为 application/wasm），改为 `/*.wasm` 并删除重叠缓存头；补回归断言。
+- 修复 GitHub Actions 的 Yarn 1 缓存检查早于 Corepack 启用的问题；[CI #6](https://github.com/taomingyang123/tinystool-image-tools/actions/runs/41663844103) 全部步骤通过，包含真实 Chrome 检查。
+- 当前功能代码发布提交 `e76f66d481182d915e9328be517ccb3f541ba951`（含响应头修复 a969604）；Pages 部署 ID `9483d57b-0984-44bd-9b8a-acaea81f9d4b`。
+- Pages 地址：https://tinystool-image-tools.pages.dev/ 。已在实际线上站点运行真实 Chrome 20 项检查，JPEG/PNG/WebP、透明 JPEG 白底、原尺寸下载、ZIP、取消重试、语言切换、WASM MIME/CSP、首屏无 WASM 和无图片上传均通过。
+- 已新增并核对 `image CNAME tinystool-image-tools.pages.dev`（已代理），Pages 控制台已显示自定义域“活动 / SSL 已启用”。但正式域名实际访问仍连接关闭：curl SSL_ERROR_SYSCALL、Chrome ERR_CONNECTION_CLOSED / 检查超时、外部抓取工具也失败。正式域名 HTTPS/端到端复验尚未通过，不能将控制台激活等同于访问验收。
+- 证据：[本地门禁](verification/2026-11-03-check.txt)、[本地 Chrome](verification/2026-11-03-browser-check.json)、[线上 Chrome](verification/2026-11-03-production-browser-check.json)。macOS 本地服务测试完成全部检查后 Node 未退出，已定向清理；线上 Chrome 命令退出码 0，远端 Linux CI 也正常结束。
+- 既有 T04-13～T04-16 功能问题、跨浏览器真机、授权来源与搜索引擎提交仍未完成；没有修改主站应用或根域记录。Wrangler 仍为旧 Workers 配置，被 Pages 忽略，实际构建参数以控制台为准。
+
+## 2026-10-14 · 历史本地验收
 
 日期：2026-10-14。域名目标：`https://image.tinystool.org`。版本标记：package.json 1.0.0。
 

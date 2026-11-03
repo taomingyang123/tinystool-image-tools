@@ -1,0 +1,7 @@
+/: fetch failed
+/en/: fetch failed
+/ja/: fetch failed
+/privacy/: fetch failed
+/en/privacy/: fetch failed
+/ja/privacy/: fetch failed
+fetch failed

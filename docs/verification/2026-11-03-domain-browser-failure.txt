@@ -1,0 +1,9 @@
+file:///Users/taomingyang/Desktop/project/Tiny-Image/scripts/.domain-browser-check.mjs:42
+  throw new Error('Timed out waiting for browser state');
+        ^
+
+Error: Timed out waiting for browser state
+    at waitFor (file:///Users/taomingyang/Desktop/project/Tiny-Image/scripts/.domain-browser-check.mjs:42:9)
+    at async file:///Users/taomingyang/Desktop/project/Tiny-Image/scripts/.domain-browser-check.mjs:87:3
+
+Node.js v22.22.3
