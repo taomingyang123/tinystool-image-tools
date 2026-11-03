@@ -249,7 +249,7 @@
 - **行为**：检查现有账号及独立项目，执行生产构建和浏览器验证，部署至 tinystool-image-tools，绑定并核验 image.tinystool.org。
 - **验证**：静态 yarn check；运行时真实 Chrome；系统级 Pages/自定义域名页面、WASM MIME/CSP 与压缩下载。
 - **状态**：doing
-- **进展**：2026-11-03 用户授权直接部署，开始核实账号、现有 Pages 项目及发布产物。首次云端构建成功，但确认 `_headers` 的 `*.wasm` 路径无效，导致 JS MIME 被覆盖为 application/wasm；在本任务内修正发布阻塞。
+- **进展**：2026-11-03 用户授权直接部署，开始核实账号、现有 Pages 项目及发布产物。首次云端构建成功，但确认 `_headers` 的 `*.wasm` 路径无效，导致 JS MIME 被覆盖为 application/wasm；在本任务内修正发布阻塞。远端 CI 因 Corepack 启用前 setup-node 调用 Yarn 1 缓存检查失败，移除过早的缓存检查以恢复门禁。
 - **证据**：待记录；已知 T04-13～T04-16 问题及真机验收待办继续保留。
 
 ### 已归档任务（历史模板）
