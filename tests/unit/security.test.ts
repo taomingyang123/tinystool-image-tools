@@ -45,7 +45,12 @@ describe("T03-03 · Security, Privacy & CSP Audit", () => {
       const content = fs.readFileSync(headersPath, "utf8");
       expect(content).toContain("/_nuxt/*");
       expect(content).toContain("Cache-Control: public, max-age=31536000, immutable");
-      expect(content).toContain("*.wasm");
+      // Cloudflare treats a non-slash path as a malformed header line, so
+      // subsequent MIME headers would leak into the preceding JS asset rule.
+      const rules = content.split('\n').filter(line => line && !/^\s|#/.test(line));
+      expect(rules.every(rule => rule.startsWith('/'))).toBe(true);
+      expect(rules.filter(rule => new RegExp('^' + rule.replaceAll('*', '.*') + '$').test('/_nuxt/app.js'))).not.toContain('/*.wasm');
+      expect(content).toMatch(/\n\/\*\.wasm\n  Content-Type: application\/wasm/);
       expect(content).toContain("Content-Type: application/wasm");
     });
   });

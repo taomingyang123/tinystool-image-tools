@@ -205,8 +205,9 @@
   2. 清理 `assets/css/main.css` 中覆盖 Tailwind `gap-*` 的全局 `.grid` 冲突样式；
   3. 重构 `components/ImageSettings.vue` 三列配置布局，统一各列标题行与控件区高度（`h-11`）及水平基线对齐，将模式说明置于底部统一提示栏，消除中间列下沉错位与按钮间距异常。
 - **验证**：2026-10-19 静态：typecheck 与词条检查通过；运行时：88 项测试、SSG、SEO 通过；系统级：本地 Chrome 20 项既有流程通过，补充多语言窄屏及输入检查发现问题，尚未通过本任务全部验收。早期 Node 读取权限问题已消失。
-- **状态**：doing
+- **状态**：blocked
 - **进展**：2026-10-14 完成 `pages/index.vue`、`pages/privacy.vue`、`components/ImageFaq.vue`、`components/ImageSettings.vue` 与 `assets/css/main.css` 改造及静态核对。2026-10-19 环境已可运行 Node 22.17.0 / Yarn 4.5.0，`yarn check`（88 项测试、SSG 与 SEO）通过，真实 Chrome 20 项既有流程通过，但新增场景复现英文 390px 配置区溢出，以及自定义尺寸输入 1920 时输入框消失失焦；桌面 1440px 导航与面板左右边界一致。保持 `doing`，当前待处理为真实 UI 问题，不再将 Node 权限作为当前阻碍。
+- **断点**：2026-11-03 用户要求立即部署，切换至 T04-19；窄屏布局与自定义输入问题保留待续。
 - **证据**：原改造 Git diff 核对；2026-10-19 `yarn check` 通过；[布局与输入诊断](docs/verification/2026-10-19-layout.json)、[当前待办复核](docs/verification/2026-10-19-pending-review.md)。
 
 #### T04-14 · 修复透明图片缩放边缘与单像素采样
@@ -244,6 +245,13 @@
 - **进展**：2026-10-19 发现 AGENTS 仍写阶段 0/命令待验证/Playwright 配置，与当前实现和已完成本地验证不一致。
 - **证据**：[当前待办复核](docs/verification/2026-10-19-pending-review.md)。
 
+#### T04-19 · Cloudflare Pages 实际部署与域名核验
+- **行为**：检查现有账号及独立项目，执行生产构建和浏览器验证，部署至 tinystool-image-tools，绑定并核验 image.tinystool.org。
+- **验证**：静态 yarn check；运行时真实 Chrome；系统级 Pages/自定义域名页面、WASM MIME/CSP 与压缩下载。
+- **状态**：doing
+- **进展**：2026-11-03 用户授权直接部署，开始核实账号、现有 Pages 项目及发布产物。首次云端构建成功，但确认 `_headers` 的 `*.wasm` 路径无效，导致 JS MIME 被覆盖为 application/wasm；在本任务内修正发布阻塞。
+- **证据**：待记录；已知 T04-13～T04-16 问题及真机验收待办继续保留。
+
 ### 已归档任务（历史模板）
 
 #### F01 · 接入已有项目协作文档
@@ -253,9 +261,9 @@
 ## 完成进度
 
 - todo：7（T04-11、T04-12、T04-14～T04-18）
-- doing：1（T04-13）
-- blocked：0
+- doing：1（T04-19）
+- blocked：1（T04-13）
 - done：23（既有 22 项含 F01 归档 + T04-10 本地审查）
-- 总数：31
-- 已启动或受阻数 = doing + blocked + done：24
-- 收尾比例 = done / (doing + blocked + done)：95.8%（23 / 24；不含 todo，不代表生产验收通过）
+- 总数：32
+- 已启动或受阻数 = doing + blocked + done：25
+- 收尾比例 = done / (doing + blocked + done)：92.0%（23 / 25；不含 todo，不代表生产验收通过）
