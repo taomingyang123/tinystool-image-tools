@@ -22,7 +22,11 @@ if (fs.existsSync(notFound)) {
 
 const headersSource = path.resolve("public/_headers");
 if (fs.existsSync(headersSource)) {
-  fs.copyFileSync(headersSource, path.join(output, "_headers"));
+  // Prevent zone-level RUM from injecting third-party scripts into this site.
+  // Keep hashed JS/CSS/WASM caching independent of HTML revalidation.
+  const htmlRules = [...INDEXABLE_ROUTES, "/404.html", "/200.html"]
+    .map(route => `${route}\n  Cache-Control: public, max-age=0, must-revalidate, no-transform`);
+  write("_headers", `${fs.readFileSync(headersSource, "utf8")}\n${htmlRules.join("\n\n")}\n`);
 }
 
 if (siteConfig.adsenseClient) {

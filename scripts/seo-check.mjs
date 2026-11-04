@@ -31,6 +31,14 @@ const headers = path.join(publicDir, "_headers");
 if (!fs.existsSync(headers) || !fs.readFileSync(headers, "utf8").includes("Content-Security-Policy")) {
   errors.push("Missing or invalid _headers with Content-Security-Policy");
 }
+if (fs.existsSync(headers)) {
+  const content = fs.readFileSync(headers, "utf8");
+  for (const route of INDEXABLE_ROUTES) {
+    if (!content.includes(`${route}\n  Cache-Control: public, max-age=0, must-revalidate, no-transform`)) {
+      errors.push(`${route}: missing HTML no-transform rule to prevent external script injection`);
+    }
+  }
+}
 if (!fs.existsSync(path.join(publicDir, "third-party-licenses.txt"))) errors.push("Missing third-party license notices");
 const notFound = path.join(publicDir, "404.html");
 if (!fs.existsSync(notFound) || !/<meta\b(?=[^>]*\bname=["']robots["'])(?=[^>]*\bcontent=["'][^"']*noindex)[^>]*>/i.test(fs.readFileSync(notFound, "utf8"))) {

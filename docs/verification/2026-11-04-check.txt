@@ -5,8 +5,8 @@
 
  Test Files  12 passed (12)
       Tests  88 passed (88)
-   Start at  21:20:29
-   Duration  600ms (tests 58%, import 26%, transform 14%, worker 2%)
+   Start at  21:24:33
+   Duration  741ms (tests 58%, import 28%, transform 12%, worker 2%)
 
 Generated local notices for 815 package versions.
 [{"name":"copy-paste","version":"2.2.0","license":"NOT DECLARED"},{"name":"node-forge","version":"1.3.3","license":"(BSD-3-Clause OR GPL-2.0)"},{"name":"only","version":"0.0.2","license":"NOT DECLARED"},{"name":"tosource","version":"2.0.0-alpha.3","license":"NOT DECLARED"}]
@@ -27,7 +27,7 @@ Generated local notices for 815 package versions.
 ℹ ✓ 229 modules transformed.
 ℹ rendering chunks...
 ℹ computing gzip size...
-ℹ .nuxt/dist/client/manifest.json                             2.38 kB │ gzip:   0.50 kB
+ℹ .nuxt/dist/client/manifest.json                             2.38 kB │ gzip:   0.51 kB
 ℹ .nuxt/dist/client/_nuxt/squoosh_oxipng-yu2r7-gO.js          2.80 kB
 ℹ .nuxt/dist/client/_nuxt/workerHelpers.worker-Hf5p0PFd.js    4.81 kB
 ℹ .nuxt/dist/client/_nuxt/squoosh_oxipng-DlH0ttid.js          5.68 kB
@@ -48,47 +48,47 @@ Generated local notices for 815 package versions.
 ℹ .nuxt/dist/client/_nuxt/webp_enc_simd-CFvKQ_80.wasm       345.58 kB │ gzip: 127.98 kB
 ℹ .nuxt/dist/client/_nuxt/index.Yz4YL1Gg.css                  0.14 kB │ gzip:   0.12 kB
 ℹ .nuxt/dist/client/_nuxt/DlAUqK2U.js                         0.09 kB │ gzip:   0.10 kB
-ℹ .nuxt/dist/client/_nuxt/vFGj9s_S.js                         2.68 kB │ gzip:   0.86 kB
-ℹ .nuxt/dist/client/_nuxt/D2LT-brz.js                         3.20 kB │ gzip:   1.33 kB
-ℹ .nuxt/dist/client/_nuxt/DmKkFGBh.js                         3.48 kB │ gzip:   1.82 kB
-ℹ .nuxt/dist/client/_nuxt/DIeaOWm4.js                         8.50 kB │ gzip:   3.41 kB
+ℹ .nuxt/dist/client/_nuxt/DT5C0WNV.js                         2.68 kB │ gzip:   0.86 kB
+ℹ .nuxt/dist/client/_nuxt/D_v2PH9K.js                         3.20 kB │ gzip:   1.33 kB
+ℹ .nuxt/dist/client/_nuxt/Cce29lX8.js                         3.48 kB │ gzip:   1.82 kB
+ℹ .nuxt/dist/client/_nuxt/Dxwiw4tP.js                         8.50 kB │ gzip:   3.41 kB
 ℹ .nuxt/dist/client/_nuxt/DckeFmKF.js                         9.37 kB │ gzip:   3.78 kB
 ℹ .nuxt/dist/client/_nuxt/OT1NbW-_.js                         9.38 kB │ gzip:   3.24 kB
 ℹ .nuxt/dist/client/_nuxt/BnF8zfLj.js                        11.07 kB │ gzip:   3.92 kB
-ℹ .nuxt/dist/client/_nuxt/CwLgDff5.js                        66.64 kB │ gzip:  21.57 kB
-ℹ .nuxt/dist/client/_nuxt/BSlexprQ.js                       248.89 kB │ gzip:  91.63 kB
-ℹ ✓ built in 1.77s
-✔ Client built in 1774ms
+ℹ .nuxt/dist/client/_nuxt/krMvfhe5.js                        66.64 kB │ gzip:  21.57 kB
+ℹ .nuxt/dist/client/_nuxt/DUrH4wri.js                       248.89 kB │ gzip:  91.63 kB
+ℹ ✓ built in 1.72s
+✔ Client built in 1720ms
 ℹ Building server...
 ℹ vite v7.3.0 building ssr environment for production...
 ℹ transforming...
 ℹ ✓ 152 modules transformed.
 ℹ rendering chunks...
-ℹ ✓ built in 644ms
-✔ Server built in 647ms
+ℹ ✓ built in 697ms
+✔ Server built in 700ms
 [nitro] ℹ Initializing prerenderer
 [nitro] ℹ Prerendering 10 routes
-[nitro]   ├─ /robots.txt (48ms)
-[nitro]   ├─ /__sitemap__/style.xsl (48ms)
-[nitro]   ├─ /200.html (49ms)
-[nitro]   ├─ /404.html (49ms)
-[nitro]   ├─ /privacy/ (76ms)
-[nitro]   ├─ /en/ (78ms)
-[nitro]   ├─ /ja/ (82ms)
-[nitro]   ├─ /en/privacy/ (81ms)
-[nitro]   ├─ /ja/privacy/ (82ms)
-[nitro]   ├─ / (83ms)
-[nitro]   ├─ /privacy/_payload.json (2ms)
-[nitro]   ├─ /en/_payload.json (0ms)
-[nitro]   ├─ /ja/_payload.json (1ms)
+[nitro]   ├─ /__sitemap__/style.xsl (76ms)
+[nitro]   ├─ /200.html (77ms)
+[nitro]   ├─ /robots.txt (77ms)
+[nitro]   ├─ /404.html (77ms)
+[nitro]   ├─ /ja/ (122ms)
+[nitro]   ├─ / (119ms)
+[nitro]   ├─ /ja/privacy/ (126ms)
+[nitro]   ├─ /privacy/ (123ms)
+[nitro]   ├─ /en/ (126ms)
+[nitro]   ├─ /en/privacy/ (121ms)
+[nitro]   ├─ /ja/_payload.json (4ms)
+[nitro]   ├─ /_payload.json (1ms)
 [nitro]   ├─ /ja/privacy/_payload.json (0ms)
-[nitro]   ├─ /en/privacy/_payload.json (0ms)
-[nitro]   ├─ /_payload.json (0ms)
-[nitro]   ├─ /_i18n/jJHeiUdE/en/messages.json (4ms)
-[nitro]   ├─ /_i18n/jJHeiUdE/zh/messages.json (4ms)
-[nitro]   ├─ /_i18n/jJHeiUdE/ja/messages.json (4ms)
-[nitro]   ├─ /sitemap.xml (4ms)
-[nitro] ℹ Prerendered 20 routes in 0.881 seconds
+[nitro]   ├─ /en/_payload.json (2ms)
+[nitro]   ├─ /privacy/_payload.json (1ms)
+[nitro]   ├─ /en/privacy/_payload.json (2ms)
+[nitro]   ├─ /_i18n/9kEpBgK0/zh/messages.json (9ms)
+[nitro]   ├─ /_i18n/9kEpBgK0/ja/messages.json (9ms)
+[nitro]   ├─ /_i18n/9kEpBgK0/en/messages.json (9ms)
+[nitro]   ├─ /sitemap.xml (8ms)
+[nitro] ℹ Prerendered 20 routes in 1.242 seconds
 [nitro] ✔ Generated public .output/public
 [nitro] ℹ Adding Nitro fallback to _headers to handle all unmatched routes.
 ℹ Generated .output/public/_headers

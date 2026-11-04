@@ -250,7 +250,7 @@
 - **验证**：静态 yarn check；运行时真实 Chrome；系统级 Pages/自定义域名页面、WASM MIME/CSP 与压缩下载。
 - **状态**：doing
 - **进展**：2026-11-03 用户授权直接部署，开始核实账号、现有 Pages 项目及发布产物。首次云端构建成功，但确认 `_headers` 的 `*.wasm` 路径无效，导致 JS MIME 被覆盖为 application/wasm；在本任务内修正发布阻塞。远端 CI 因 Corepack 启用前 setup-node 调用 Yarn 1 缓存检查失败，移除过早的缓存检查以恢复门禁。
-- **进展补充**：2026-11-04 正式域名已返回 HTTPS 200，六页面和规范重定向可访问；seo:live 发现静态 404 缺少 noindex（error.vue 客户端标记未进入 SSG fallback），在 T04-19 内补齐构建产物及静态门禁。
+- **进展补充**：2026-11-04 正式域名已返回 HTTPS 200，六页面和规范重定向可访问；seo:live 发现静态 404 缺少 noindex（error.vue 客户端标记未进入 SSG fallback），在 T04-19 内补齐构建产物及静态门禁。正式域名 Chrome 的压缩下载、透明度、取消重试均通过，但主域自动 Web Analytics 注入外部 beacon，被 CSP 阻止；Cloudflare 免费账户的细分统计规则不可用；改为仅在图片子站的 HTML 响应设置 no-transform，阻止自动注入并保留静态资源缓存，主站统计设置未修改。
 - **证据**：[部署结果](docs/DEPLOYMENT-RESULTS.md)、[线上 Chrome](docs/verification/2026-11-03-production-browser-check.json)；GitHub CI #6 全通过。Pages 可用，自定义域已显示活动/SSL 启用，但真实域名访问仍连接关闭，SEO/Chrome 未通过，T04-19 保持 doing。已知 T04-13～T04-16 问题及真机验收待办继续保留。
 
 ### 已归档任务（历史模板）
