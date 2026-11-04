@@ -1,0 +1,124 @@
+PASS No WASM loaded on idle first page
+PASS Real Worker compresses PNG/JPEG/WebP; bad input is isolated
+PASS WASM requests use valid URLs, HTTP 200 and MIME
+PASS Downloaded ZIP has three successful images
+PASS All downloaded JPEG/PNG/WebP results decode at original dimensions
+PASS English route preserves queue and translates errors
+PASS Japanese route preserves queue
+PASS Comparison dialog traps keyboard focus and exposes an accessible slider
+PASS PNG -> JPEG alpha composites onto white
+PASS Original image can be downloaded
+PASS WebP -> explicit quantized PNG works
+PASS PNG output preserves partial transparency
+PASS 390px mobile page has no horizontal overflow
+PASS Batch upload enforces 20 images with a visible message
+PASS Clear removes all result and preview entries
+PASS Cancel interrupts a real in-progress Worker task
+PASS Cancelled task retries with a fresh Worker
+PASS Six public pages and license notices exist; dev Spike is excluded
+{
+  "exceptions": [],
+  "logErrors": [
+    "Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocked."
+  ],
+  "recentTraffic": [
+    {
+      "url": "blob:https://image.tinystool.org/ae6ea63f-3a31-412d-bf68-5fb87d253027",
+      "method": "GET",
+      "postData": false
+    },
+    {
+      "url": "blob:https://image.tinystool.org/f8b1ce83-7f10-4f6b-bf01-25371d262166",
+      "method": "GET",
+      "postData": false
+    },
+    {
+      "url": "blob:https://image.tinystool.org/2466fd14-8d2d-4d31-a102-32e005e4f4ce",
+      "method": "GET",
+      "postData": false
+    },
+    {
+      "url": "blob:https://image.tinystool.org/386847c9-5dce-48dd-8df8-86538b9ce3e6",
+      "method": "GET",
+      "postData": false
+    },
+    {
+      "url": "blob:https://image.tinystool.org/bf129a3b-e35a-4b64-ba58-22c804147df4",
+      "method": "GET",
+      "postData": false
+    },
+    {
+      "url": "blob:https://image.tinystool.org/e864e80f-025e-40cc-b6b4-365f977e9412",
+      "method": "GET",
+      "postData": false
+    },
+    {
+      "url": "https://image.tinystool.org/_nuxt/image.worker-XS3U2Jbd.js",
+      "method": "GET",
+      "postData": false
+    },
+    {
+      "url": "https://image.tinystool.org/_nuxt/png-KXd9itNx.js",
+      "method": "GET",
+      "postData": false,
+      "session": "E47EB68DF2130F3898068C4ECDD0142E"
+    },
+    {
+      "url": "https://image.tinystool.org/_nuxt/squoosh_png_bg-DAY7U9NW.wasm",
+      "method": "GET",
+      "postData": false,
+      "session": "E47EB68DF2130F3898068C4ECDD0142E"
+    },
+    {
+      "wasm": "https://image.tinystool.org/_nuxt/squoosh_png_bg-DAY7U9NW.wasm",
+      "status": 200,
+      "mime": "application/wasm"
+    },
+    {
+      "url": "https://image.tinystool.org/_nuxt/squoosh_oxipng_bg-OFMN1KwG.wasm",
+      "method": "GET",
+      "postData": false,
+      "session": "E47EB68DF2130F3898068C4ECDD0142E"
+    },
+    {
+      "wasm": "https://image.tinystool.org/_nuxt/squoosh_oxipng_bg-OFMN1KwG.wasm",
+      "status": 200,
+      "mime": "application/wasm"
+    }
+  ]
+}
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
++ [
++   {
++     method: 'GET',
++     postData: false,
++     session: undefined,
++     url: 'https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092'
++   }
++ ]
+- []
+
+    at file:///Users/taomingyang/Desktop/project/Tiny-Image/scripts/.domain-browser-check.mjs:162:124
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: [
+    {
+      url: 'https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092',
+      method: 'GET',
+      postData: false,
+      session: undefined
+    }
+  ],
+  expected: [],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

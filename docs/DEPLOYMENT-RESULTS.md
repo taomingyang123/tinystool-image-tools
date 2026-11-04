@@ -1,5 +1,15 @@
 # Tiny Image — 部署结果与验收记录
 
+## 2026-11-04 · 正式域名生效与复验（T04-19）
+
+- 正式入口 https://image.tinystool.org/ 已返回 HTTPS 200；昨日连接关闭问题已消失。中文、英文、日文首页与三语隐私页、canonical/hreflang、规范重定向、robots/sitemap 均已通过线上核验。
+- 修复 Nuxt SSG `404.html` 在 hydration 前缺少 robots noindex 的问题；将标记写入静态产物并纳入 `seo-check`，正式域名 404 状态与 noindex 已通过 `seo:live`。
+- 正式域名真实 Chrome 首轮在语言切回中文处超时；重试完成 18 项功能断言，但外部请求/CSP 断言发现主域 Cloudflare 自动 RUM 注入。CSP 已阻止该脚本，没有图片上传证据。Cloudflare 免费账户不提供 hostname 细分规则，因此在图片子站六条 HTML 路由及 fallback 静态 HTML 增加 `Cache-Control: public, max-age=0, must-revalidate, no-transform` 防止注入；静态哈希资源缓存保持独立。
+- 未修改主站源码、项目、DNS 或统计开关。行为依据 [Cloudflare 自动设置说明](https://developers.cloudflare.com/web-analytics/get-started/)。
+- 本地 Node 22.22.3 / Yarn 4.5.0：`yarn check` 通过（88 项测试、SSG、SEO 及新增 404/no-transform 产物门禁）。
+- 最终生产功能代码提交 `fe2f59564f160e05a585725c8293aa3cabf50933`；Pages 部署 `febc8b55-44e1-483b-bdbb-6a2fb5a09647`。正式域名 Chrome 20 项全部通过，退出码 0，无外部请求/图片上传请求及 CSP 错误；[CI #8](https://github.com/taomingyang123/tinystool-image-tools/actions/runs/41837891957) 成功。T04-19 done，真机、既有功能和授权来源待办保持原状态。
+- 证据：[构建门禁](verification/2026-11-04-check.txt)、[正式域名 Chrome](verification/2026-11-04-domain-browser-check.json)、[线上 SEO](verification/2026-11-04-seo-live.txt)。
+
 ## 2026-11-03 · 实际 Cloudflare Pages 部署（T04-19）
 
 - 独立仓库已更名为 `taomingyang123/tinystool-image-tools`，本地 origin 已同步；Pages 同名，Git 集成 main 自动部署，构建命令 `yarn check`，输出 `.output/public`，Node 22.22.3 / Yarn 4.5.0。
