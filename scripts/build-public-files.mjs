@@ -11,6 +11,15 @@ const redirects = INDEXABLE_ROUTES.filter(route => route !== "/")
 write("_redirects", `# Generated from config/indexableRoutes.js\n${redirects.join("\n")}\n`);
 write("robots.txt", `User-agent: *\nAllow: /\nDisallow: /api/\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
 
+// Pages serves Nuxt's static fallback before error.vue can set client metadata.
+const notFound = path.join(output, "404.html");
+if (fs.existsSync(notFound)) {
+  const html = fs.readFileSync(notFound, "utf8")
+    .replace(/<meta\b(?=[^>]*\bname=["']robots["'])[^>]*>/gi, "");
+  if (!html.includes("</head>")) throw new Error("404.html is missing its HTML head.");
+  write("404.html", html.replace("</head>", '<meta name="robots" content="noindex, nofollow"></head>'));
+}
+
 const headersSource = path.resolve("public/_headers");
 if (fs.existsSync(headersSource)) {
   fs.copyFileSync(headersSource, path.join(output, "_headers"));
