@@ -1,145 +1,184 @@
-/* 可以在此追加全局自定义样式，保持 Tailwind 的渐进式增强思路 */
+/* Swiss Optical Studio 设计系统令牌与基础样式 */
 :root {
-    --bg: #05080f;
-    --panel: rgba(17, 24, 39, 0.85);
-    --panel-2: rgba(31, 41, 64, 0.9);
-    --text: #e8edf7;
-    --muted: #8fa0bf;
-    --accent: #6ee7ff;
-    --accent-2: #c084fc;
-    --danger: #fb7185;
-    --success: #34d399;
-    --glow: 0 10px 40px rgba(110, 231, 255, 0.15);
-    color-scheme: dark;
+  --studio-bg: #f5f5f2;
+  --studio-surface: #ffffff;
+  --studio-surface-subtle: #efefe9;
+  --studio-surface-muted: #f8f8f6;
+  --studio-border: #e2e2db;
+  --studio-border-strong: #c8c8be;
+  --studio-ink: #141517;
+  --studio-ink-secondary: #52555d;
+  --studio-ink-muted: #7c808a;
+  --studio-primary: #141517;
+  --studio-primary-hover: #27292e;
+  --studio-primary-ink: #ffffff;
+  --studio-emerald: #059669;
+  --studio-emerald-bg: #ecfdf5;
+  --studio-emerald-border: #a7f3d0;
+  --studio-emerald-ink: #065f46;
+  --studio-cobalt: #2563eb;
+  --studio-cobalt-bg: #eff6ff;
+  --studio-cobalt-border: #bfdbfe;
+  --studio-amber: #d97706;
+  --studio-amber-bg: #fffbeb;
+  --studio-amber-border: #fde68a;
+  --studio-amber-ink: #92400e;
+  --studio-rose: #e11d48;
+  --studio-rose-bg: #fff1f2;
+  --studio-rose-border: #fecdd3;
+  --studio-rose-ink: #9f1239;
+  --studio-checker-a: #f7f7f5;
+  --studio-checker-b: #e6e6e0;
+  --studio-shadow-sm: 0 1px 2px rgba(20, 21, 23, 0.04);
+  --studio-shadow-md: 0 8px 24px -6px rgba(20, 21, 23, 0.08), 0 2px 6px -1px rgba(20, 21, 23, 0.04);
+  --studio-shadow-lg: 0 24px 48px -12px rgba(20, 21, 23, 0.18);
+  color-scheme: light;
+}
+
+html.dark {
+  --studio-bg: #0c0d10;
+  --studio-surface: #14161b;
+  --studio-surface-subtle: #1c1f26;
+  --studio-surface-muted: #181a20;
+  --studio-border: #262a34;
+  --studio-border-strong: #373d4b;
+  --studio-ink: #f3f4f6;
+  --studio-ink-secondary: #a1a7b5;
+  --studio-ink-muted: #6e7585;
+  --studio-primary: #f5f5f2;
+  --studio-primary-hover: #e2e2db;
+  --studio-primary-ink: #141517;
+  --studio-emerald: #34d399;
+  --studio-emerald-bg: rgba(16, 185, 129, 0.12);
+  --studio-emerald-border: rgba(52, 211, 153, 0.28);
+  --studio-emerald-ink: #6ee7b7;
+  --studio-cobalt: #60a5fa;
+  --studio-cobalt-bg: rgba(59, 130, 246, 0.12);
+  --studio-cobalt-border: rgba(96, 165, 250, 0.28);
+  --studio-amber: #fbbf24;
+  --studio-amber-bg: rgba(245, 158, 11, 0.12);
+  --studio-amber-border: rgba(251, 191, 36, 0.28);
+  --studio-amber-ink: #fcd34d;
+  --studio-rose: #fb7185;
+  --studio-rose-bg: rgba(244, 63, 94, 0.12);
+  --studio-rose-border: rgba(251, 113, 133, 0.28);
+  --studio-rose-ink: #fda4af;
+  --studio-checker-a: #181a20;
+  --studio-checker-b: #23262f;
+  --studio-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.24);
+  --studio-shadow-md: 0 10px 28px -6px rgba(0, 0, 0, 0.45);
+  --studio-shadow-lg: 0 24px 56px -12px rgba(0, 0, 0, 0.72);
+  color-scheme: dark;
 }
 
 *,
 *::before,
 *::after {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
+html,
 body {
-    margin: 0;
-    font-family: "Space Grotesk", "SF Pro Display", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: radial-gradient(circle at 20% 20%, rgba(110, 231, 255, 0.08), transparent 25%), radial-gradient(circle at 80% 10%, rgba(192, 132, 252, 0.12), transparent 30%), radial-gradient(circle at 30% 80%, rgba(52, 211, 153, 0.07), transparent 30%), var(--bg);
-    color: var(--text);
-    min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background-color: var(--studio-bg);
+  color: var(--studio-ink);
+  font-family: "Inter", "PingFang SC", "Hiragino Sans GB", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 a {
-    color: inherit;
-    text-decoration: none;
-    cursor: pointer;
+  color: inherit;
+  text-decoration: none;
 }
 
-.glass {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35), var(--glow);
-    backdrop-filter: blur(12px);
-}
-
-.card {
-    border-radius: 16px;
-    padding: 18px;
-}
-
-button {
-    font-family: inherit;
-}
-
-.btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 14px;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: linear-gradient(135deg, rgba(110, 231, 255, 0.18), rgba(192, 132, 252, 0.22));
-    color: #0b1220;
-    font-weight: 700;
-    cursor: pointer;
-    transition: transform 0.1s ease, box-shadow 0.2s ease;
-    box-shadow: var(--glow);
-}
-
-.btn.secondary {
-    background: rgba(255, 255, 255, 0.04);
-    color: var(--text);
-    box-shadow: none;
-}
-
-.btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 10px 35px rgba(110, 231, 255, 0.18);
-}
-
-.badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(255, 255, 255, 0.04);
-    color: var(--muted);
-    font-size: 12px;
-    letter-spacing: 0.02em;
-    flex-shrink: 0;
-    white-space: nowrap;
-}
-
-.two-col {
-    display: grid;
-    gap: 16px;
-    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-}
-
-.muted {
-    color: var(--muted);
-}
-
-.pill {
-    padding: 6px 12px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: var(--text);
-    white-space: nowrap;
-}
-
-.section-title {
-    font-size: 18px;
-    margin: 0 0 8px;
+button,
+input {
+  font-family: inherit;
 }
 
 .mono {
-    font-family: "JetBrains Mono", "SFMono-Regular", Consolas, Menlo, monospace;
+  font-family: "SF Mono", "JetBrains Mono", "Fira Code", Menlo, Consolas, monospace;
 }
 
-.panel-title {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    margin-bottom: 10px;
-    font-weight: 600;
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
 
-.panel-top {
-    min-height: 48px;
+/* 工作室卡片容器 */
+.studio-card {
+  background-color: var(--studio-surface);
+  border: 1px solid var(--studio-border);
+  box-shadow: var(--studio-shadow-sm);
 }
 
-.site-container {
-    width: 100%;
-    max-width: 1280px;
-    min-height: 100vh;
-    margin: 0 auto;
-    padding: 28px 24px 48px;
+/* 透明通道标准棋盘格底纹 */
+.studio-checkerboard {
+  background-color: var(--studio-checker-a);
+  background-image:
+    linear-gradient(45deg, var(--studio-checker-b) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--studio-checker-b) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--studio-checker-b) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--studio-checker-b) 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+}
+
+.studio-checkerboard-sm {
+  background-color: var(--studio-checker-a);
+  background-image:
+    linear-gradient(45deg, var(--studio-checker-b) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--studio-checker-b) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--studio-checker-b) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--studio-checker-b) 75%);
+  background-size: 10px 10px;
+  background-position: 0 0, 0 5px, 5px -5px, -5px 0;
+}
+
+/* 精密质量滑块，确保窄屏下零溢出 */
+.studio-range {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--studio-border-strong);
+  outline: none;
+  cursor: pointer;
+}
+
+.studio-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--studio-primary);
+  border: 2px solid var(--studio-surface);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+
+.studio-range::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+.studio-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--studio-primary);
+  border: 2px solid var(--studio-surface);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
 }
 
 :focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
+  outline: 2px solid var(--studio-cobalt);
+  outline-offset: 2px;
 }

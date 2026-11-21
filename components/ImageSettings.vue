@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 import type { CompressionOptions, OutputMode } from "../lib/image/types";
 
 interface Props {
@@ -17,7 +17,16 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 
-// 格式切换
+type EdgePreset = "none" | "1920" | "1280" | "custom";
+
+function derivePreset(edge: number | null): EdgePreset {
+  if (edge === null) return "none";
+  if (edge === 1920) return "1920";
+  if (edge === 1280) return "1280";
+  return "custom";
+}
+
+// 输出格式
 const currentOutput = computed({
   get: () => props.modelValue.output,
   set: (val: OutputMode) => {
@@ -25,7 +34,7 @@ const currentOutput = computed({
   },
 });
 
-// 质量数值
+// 图片质量（仅有损或量化模式显示）
 const currentQuality = computed({
   get: () => props.modelValue.quality,
   set: (val: number) => {
@@ -33,73 +42,99 @@ const currentQuality = computed({
   },
 });
 
-// 最长边选项
-const currentEdgePreset = computed({
-  get: () => {
-    if (props.modelValue.maxLongEdge === null) return "none";
-    if (props.modelValue.maxLongEdge === 1920) return "1920";
-    if (props.modelValue.maxLongEdge === 1280) return "1280";
-    if (props.modelValue.maxLongEdge === 800) return "800";
-    return "custom";
-  },
-  set: (preset: string) => {
-    if (preset === "none") {
-      emit("update:modelValue", { ...props.modelValue, maxLongEdge: null });
-    } else if (preset === "1920") {
-      emit("update:modelValue", { ...props.modelValue, maxLongEdge: 1920 });
-    } else if (preset === "1280") {
-      emit("update:modelValue", { ...props.modelValue, maxLongEdge: 1280 });
-    } else if (preset === "800") {
-      emit("update:modelValue", { ...props.modelValue, maxLongEdge: 800 });
-    } else if (preset === "custom") {
-      emit("update:modelValue", {
-        ...props.modelValue,
-        maxLongEdge: 1024,
-      });
+// 独立维护预设状态与草稿值，避免输入 1920 / 1280 时输入框被卸载失焦
+const edgePreset = ref<EdgePreset>(derivePreset(props.modelValue.maxLongEdge));
+const customEdgeInput = ref<string>(String(props.modelValue.maxLongEdge ?? 1024));
+
+watch(
+  () => props.modelValue.maxLongEdge,
+  (val) => {
+    if (edgePreset.value === "custom") {
+      if (val !== null) {
+        const parsed = Number(customEdgeInput.value);
+        if (!Number.isFinite(parsed) || Math.round(parsed) !== val) {
+          customEdgeInput.value = String(val);
+        }
+      }
+      return;
+    }
+    edgePreset.value = derivePreset(val);
+    if (val !== null) {
+      customEdgeInput.value = String(val);
     }
   },
-});
+);
 
-const customEdgeValue = computed({
-  get: () => props.modelValue.maxLongEdge ?? 1024,
-  set: (val: number) => {
-    if (!Number.isFinite(Number(val))) return;
-    const num = Math.min(10000, Math.max(1, Math.round(Number(val))));
-    emit("update:modelValue", { ...props.modelValue, maxLongEdge: num });
-  },
-});
+const selectEdgePreset = (preset: EdgePreset) => {
+  edgePreset.value = preset;
+  if (preset === "none") {
+    emit("update:modelValue", { ...props.modelValue, maxLongEdge: null });
+  } else if (preset === "1920") {
+    emit("update:modelValue", { ...props.modelValue, maxLongEdge: 1920 });
+  } else if (preset === "1280") {
+    emit("update:modelValue", { ...props.modelValue, maxLongEdge: 1280 });
+  } else {
+    const parsed = Number(customEdgeInput.value);
+    const nextVal = Number.isFinite(parsed) && parsed >= 1 ? Math.min(10000, Math.round(parsed)) : 1024;
+    customEdgeInput.value = String(nextVal);
+    emit("update:modelValue", { ...props.modelValue, maxLongEdge: nextVal });
+  }
+};
+
+const handleCustomEdgeInput = (event: Event) => {
+  const raw = (event.target as HTMLInputElement).value;
+  customEdgeInput.value = raw;
+  if (!raw.trim()) return;
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed) || parsed < 1) return;
+  const clamped = Math.min(10000, Math.round(parsed));
+  emit("update:modelValue", { ...props.modelValue, maxLongEdge: clamped });
+};
+
+const handleCustomEdgeBlur = () => {
+  const parsed = Number(customEdgeInput.value);
+  const fallback = props.modelValue.maxLongEdge ?? 1024;
+  const nextVal = Number.isFinite(parsed) && parsed >= 1 ? Math.min(10000, Math.round(parsed)) : fallback;
+  customEdgeInput.value = String(nextVal);
+  if (props.modelValue.maxLongEdge !== nextVal) {
+    emit("update:modelValue", { ...props.modelValue, maxLongEdge: nextVal });
+  }
+};
+
+const qualityPresets = [60, 80, 90] as const;
 </script>
 
 <template>
   <fieldset
     :disabled="disabled"
     data-testid="settings"
-    class="glass rounded-2xl p-5 md:p-6 transition-all duration-300 border border-white/10 shadow-xl"
+    class="studio-card rounded-2xl overflow-hidden transition-opacity duration-200 min-w-0"
     :class="{ 'opacity-60 pointer-events-none': disabled }"
   >
-    <!-- 顶部标题栏 -->
-    <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-5 border-b border-white/10">
-      <div class="flex items-center gap-2.5">
-        <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-sm shadow-cyan-400/50 animate-pulse"></span>
-        <h2 class="text-base font-bold text-gray-100 tracking-wide">
+    <!-- 检查器顶栏 -->
+    <div class="px-5 py-3.5 border-b border-[var(--studio-border)] bg-[var(--studio-surface-muted)] flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2 min-w-0">
+        <span class="w-2 h-2 rounded-full bg-[var(--studio-emerald)] shrink-0" aria-hidden="true"></span>
+        <h2 class="text-sm font-semibold text-[var(--studio-ink)] truncate">
           {{ t("settings.title") }}
         </h2>
       </div>
-      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs text-gray-300 font-mono bg-white/[0.04] border border-white/10">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-        <span>{{ t("settings.localSafeBadge") }}</span>
+      <span class="text-[11px] mono text-[var(--studio-ink-muted)] shrink-0">
+        {{ t("settings.localSafeBadge") }}
       </span>
     </div>
 
-    <!-- 三列等高配置区 -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">
-      <!-- 1. 输出格式选择 -->
-      <div class="rounded-xl bg-white/[0.02] border border-white/[0.07] p-4 flex flex-col justify-between gap-3">
-        <div class="flex items-center justify-between h-6">
-          <label class="text-xs font-semibold text-gray-300 uppercase tracking-wider">
-            {{ t("settings.outputFormat") }}
-          </label>
-          <span class="text-[11px] font-mono px-2 py-0.5 rounded-md bg-white/[0.04] text-gray-400 border border-white/10">
+    <div class="divide-y divide-[var(--studio-border)]">
+      <!-- 01 / 输出格式 -->
+      <section class="p-5 space-y-3">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] mono font-semibold text-[var(--studio-ink-muted)]">{{ t("settings.stepFormat") }}</span>
+            <span class="text-xs font-semibold uppercase tracking-wider text-[var(--studio-ink-secondary)]">
+              {{ t("settings.outputFormat") }}
+            </span>
+          </div>
+          <span class="text-[11px] mono px-2 py-0.5 rounded bg-[var(--studio-surface-subtle)] text-[var(--studio-ink-secondary)] border border-[var(--studio-border)]">
             {{
               currentOutput === "keep"
                 ? t("settings.formatKeep")
@@ -110,208 +145,238 @@ const customEdgeValue = computed({
           </span>
         </div>
 
-        <div class="grid grid-cols-3 gap-1.5 p-1 bg-gray-950/70 rounded-xl border border-white/10 h-11 items-center">
+        <div class="grid grid-cols-3 gap-1 p-1 rounded-xl bg-[var(--studio-surface-subtle)] border border-[var(--studio-border)]">
           <button
             type="button"
-            class="h-full flex items-center justify-center px-2 text-xs font-medium rounded-lg transition-all duration-200 cursor-pointer"
+            data-output="keep"
+            class="px-2 py-2 rounded-lg text-xs font-medium transition-all cursor-pointer text-center leading-tight"
             :class="
               currentOutput === 'keep'
-                ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-300 border border-cyan-400/40 shadow-sm'
-                : 'text-gray-400 hover:text-gray-200 hover:bg-white/[0.03]'
+                ? 'bg-[var(--studio-surface)] text-[var(--studio-ink)] font-semibold shadow-sm border border-[var(--studio-border)]'
+                : 'text-[var(--studio-ink-secondary)] hover:text-[var(--studio-ink)] border border-transparent'
             "
-            data-output="keep"
             @click="currentOutput = 'keep'"
           >
             {{ t("settings.formatKeep") }}
           </button>
           <button
             type="button"
-            class="h-full flex items-center justify-center px-2 text-xs font-medium rounded-lg transition-all duration-200 cursor-pointer"
+            data-output="jpeg"
+            class="px-2 py-2 rounded-lg text-xs font-medium transition-all cursor-pointer text-center leading-tight"
             :class="
               currentOutput === 'jpeg'
-                ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-300 border border-cyan-400/40 shadow-sm'
-                : 'text-gray-400 hover:text-gray-200 hover:bg-white/[0.03]'
+                ? 'bg-[var(--studio-surface)] text-[var(--studio-ink)] font-semibold shadow-sm border border-[var(--studio-border)]'
+                : 'text-[var(--studio-ink-secondary)] hover:text-[var(--studio-ink)] border border-transparent'
             "
-            data-output="jpeg"
             @click="currentOutput = 'jpeg'"
           >
             JPEG
           </button>
           <button
             type="button"
-            class="h-full flex items-center justify-center px-2 text-xs font-medium rounded-lg transition-all duration-200 cursor-pointer"
+            data-output="png"
+            class="px-2 py-2 rounded-lg text-xs font-medium transition-all cursor-pointer text-center leading-tight"
             :class="
               currentOutput === 'png'
-                ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-300 border border-cyan-400/40 shadow-sm'
-                : 'text-gray-400 hover:text-gray-200 hover:bg-white/[0.03]'
+                ? 'bg-[var(--studio-surface)] text-[var(--studio-ink)] font-semibold shadow-sm border border-[var(--studio-border)]'
+                : 'text-[var(--studio-ink-secondary)] hover:text-[var(--studio-ink)] border border-transparent'
             "
-            data-output="png"
             @click="currentOutput = 'png'"
           >
             {{ t("settings.formatPng") }}
           </button>
         </div>
-      </div>
 
-      <!-- 2. 图片质量控制 -->
-      <div class="rounded-xl bg-white/[0.02] border border-white/[0.07] p-4 flex flex-col justify-between gap-3">
-        <div class="flex items-center justify-between h-6">
-          <label class="text-xs font-semibold text-gray-300 uppercase tracking-wider">
-            {{ t("settings.quality") }}
-          </label>
-          <span
-            class="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md"
-            :class="
-              currentOutput === 'keep'
-                ? 'bg-purple-950/50 text-purple-300 border border-purple-500/30'
-                : 'bg-cyan-950/50 text-cyan-300 border border-cyan-500/30'
-            "
-          >
-            {{ currentOutput === "keep" ? t("settings.keepMode") : `${currentQuality}` }}
-          </span>
-        </div>
-
-        <div
-          v-if="currentOutput !== 'keep'"
-          class="h-11 px-3.5 bg-gray-950/70 rounded-xl border border-white/10 flex items-center gap-3"
+        <!-- 上下文格式说明 -->
+        <p
+          v-if="currentOutput === 'keep'"
+          class="text-xs leading-relaxed text-[var(--studio-ink-secondary)] bg-[var(--studio-surface-muted)] border border-[var(--studio-border)] rounded-lg px-3 py-2.5"
         >
-          <span class="text-[11px] text-gray-400 font-mono whitespace-nowrap">{{ t("settings.qualityLow") }}</span>
-          <input
-            v-model.number="currentQuality"
-            type="range"
-            :aria-label="t('settings.quality')"
-            min="1"
-            max="100"
-            step="1"
-            class="flex-1 h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-cyan-400 focus:outline-none"
-          />
-          <span class="text-[11px] text-gray-400 font-mono whitespace-nowrap">{{ t("settings.qualityHigh") }}</span>
-        </div>
-        <div
+          {{ t("settings.keepDesc") }}
+        </p>
+        <p
+          v-else-if="currentOutput === 'jpeg'"
+          class="text-xs leading-relaxed text-[var(--studio-amber-ink)] bg-[var(--studio-amber-bg)] border border-[var(--studio-amber-border)] rounded-lg px-3 py-2.5"
+        >
+          {{ t("settings.jpegWhiteBgNotice") }}
+        </p>
+        <p
           v-else
-          class="h-11 px-3.5 rounded-xl bg-gray-950/70 border border-white/10 flex items-center justify-between gap-2 text-xs text-gray-300"
+          class="text-xs leading-relaxed text-[var(--studio-ink-secondary)] bg-[var(--studio-surface-muted)] border border-[var(--studio-border)] rounded-lg px-3 py-2.5"
         >
-          <div class="flex items-center gap-2 min-w-0">
-            <span class="w-5 h-5 rounded-full bg-cyan-500/15 border border-cyan-400/30 text-cyan-300 flex items-center justify-center text-[11px] font-bold flex-shrink-0">
-              ✓
-            </span>
-            <span class="truncate font-medium">{{ t("settings.keepMode") }}</span>
-          </div>
-          <span class="text-[11px] font-mono text-gray-400 flex-shrink-0">PNG · JPEG · WebP</span>
-        </div>
-      </div>
+          {{ t("settings.pngSmartDesc") }}
+        </p>
+      </section>
 
-      <!-- 3. 最长边等比缩放 -->
-      <div class="rounded-xl bg-white/[0.02] border border-white/[0.07] p-4 flex flex-col justify-between gap-3">
-        <div class="flex items-center justify-between h-6">
-          <label class="text-xs font-semibold text-gray-300 uppercase tracking-wider">
-            {{ t("settings.maxLongEdge") }}
-          </label>
-          <span class="text-[11px] font-mono px-2 py-0.5 rounded-md bg-white/[0.04] text-gray-400 border border-white/10">
-            {{ currentEdgePreset === "none" ? t("settings.edgeOriginal") : `${customEdgeValue}px` }}
+      <!-- 02 / 质量控制（原格式下绝不展示滑块与质量百分比） -->
+      <section class="p-5 space-y-3">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] mono font-semibold text-[var(--studio-ink-muted)]">{{ t("settings.stepQuality") }}</span>
+            <span class="text-xs font-semibold uppercase tracking-wider text-[var(--studio-ink-secondary)]">
+              {{ t("settings.quality") }}
+            </span>
+          </div>
+
+          <span
+            v-if="currentOutput === 'keep'"
+            class="text-[11px] mono font-medium px-2 py-0.5 rounded bg-[var(--studio-emerald-bg)] text-[var(--studio-emerald-ink)] border border-[var(--studio-emerald-border)]"
+          >
+            {{ t("settings.losslessSmart") }}
+          </span>
+          <div v-else class="flex items-center gap-2">
+            <span class="text-[11px] text-[var(--studio-ink-muted)]">
+              {{ t("settings.recommended") }} 80
+            </span>
+            <span class="text-sm mono tabular-nums font-bold px-2 py-0.5 rounded bg-[var(--studio-surface-subtle)] text-[var(--studio-ink)] border border-[var(--studio-border)]">
+              {{ currentQuality }}
+            </span>
+          </div>
+        </div>
+
+        <!-- 原格式无损优化提示卡片 -->
+        <div
+          v-if="currentOutput === 'keep'"
+          class="rounded-xl bg-[var(--studio-emerald-bg)] border border-[var(--studio-emerald-border)] px-3.5 py-3 flex items-start gap-2.5 text-xs text-[var(--studio-emerald-ink)]"
+        >
+          <span class="w-4 h-4 rounded-full bg-[var(--studio-emerald)] text-white flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5" aria-hidden="true">
+            ✓
+          </span>
+          <div class="space-y-1 min-w-0">
+            <p class="font-semibold">{{ t("settings.keepMode") }}</p>
+            <p class="text-[11px] opacity-90 leading-relaxed">{{ t("settings.pngLosslessDesc") }}</p>
+          </div>
+        </div>
+
+        <!-- 有损/量化滑块区域（竖向堆叠保证 320px/390px 零溢出） -->
+        <div v-else class="space-y-3">
+          <div class="rounded-xl bg-[var(--studio-surface-muted)] border border-[var(--studio-border)] px-3.5 py-3 space-y-2.5">
+            <input
+              v-model.number="currentQuality"
+              type="range"
+              :aria-label="t('settings.quality')"
+              min="1"
+              max="100"
+              step="1"
+              class="studio-range"
+            />
+            <div class="flex items-center justify-between gap-2 text-[11px] text-[var(--studio-ink-muted)]">
+              <span>{{ t("settings.qualityLow") }}</span>
+              <span>{{ t("settings.qualityHigh") }}</span>
+            </div>
+          </div>
+
+          <!-- 快捷预设档位 -->
+          <div class="flex items-center gap-1.5">
+            <button
+              v-for="preset in qualityPresets"
+              :key="preset"
+              type="button"
+              class="flex-1 py-1.5 rounded-lg text-xs mono tabular-nums border transition-colors cursor-pointer"
+              :class="
+                currentQuality === preset
+                  ? 'bg-[var(--studio-primary)] text-[var(--studio-primary-ink)] border-[var(--studio-primary)] font-semibold'
+                  : 'bg-[var(--studio-surface)] text-[var(--studio-ink-secondary)] border-[var(--studio-border)] hover:border-[var(--studio-border-strong)] hover:text-[var(--studio-ink)]'
+              "
+              @click="currentQuality = preset"
+            >
+              {{ preset }}
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 03 / 最长边等比缩放 -->
+      <section class="p-5 space-y-3">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] mono font-semibold text-[var(--studio-ink-muted)]">{{ t("settings.stepResize") }}</span>
+            <span class="text-xs font-semibold uppercase tracking-wider text-[var(--studio-ink-secondary)]">
+              {{ t("settings.maxLongEdge") }}
+            </span>
+          </div>
+          <span class="text-[11px] mono tabular-nums px-2 py-0.5 rounded bg-[var(--studio-surface-subtle)] text-[var(--studio-ink-secondary)] border border-[var(--studio-border)]">
+            {{ edgePreset === "none" ? t("settings.edgeOriginal") : `${modelValue.maxLongEdge ?? customEdgeInput}px` }}
           </span>
         </div>
 
-        <div class="grid grid-cols-4 gap-1.5 p-1 bg-gray-950/70 rounded-xl border border-white/10 h-11 items-center">
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4 gap-1.5">
           <button
             type="button"
-            class="h-full flex items-center justify-center px-1.5 text-xs font-medium rounded-lg transition-all duration-200 cursor-pointer"
+            class="px-2 py-2 rounded-lg text-xs font-medium border transition-colors cursor-pointer text-center"
             :class="
-              currentEdgePreset === 'none'
-                ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-300 border border-cyan-400/40 shadow-sm'
-                : 'text-gray-400 hover:text-gray-200 hover:bg-white/[0.03]'
+              edgePreset === 'none'
+                ? 'bg-[var(--studio-primary)] text-[var(--studio-primary-ink)] border-[var(--studio-primary)] font-semibold'
+                : 'bg-[var(--studio-surface)] text-[var(--studio-ink-secondary)] border-[var(--studio-border)] hover:border-[var(--studio-border-strong)] hover:text-[var(--studio-ink)]'
             "
-            @click="currentEdgePreset = 'none'"
+            @click="selectEdgePreset('none')"
           >
             {{ t("settings.edgeOriginal") }}
           </button>
           <button
             type="button"
-            class="h-full flex items-center justify-center px-1.5 text-xs font-medium rounded-lg transition-all duration-200 cursor-pointer"
+            class="px-2 py-2 rounded-lg text-xs mono tabular-nums font-medium border transition-colors cursor-pointer text-center"
             :class="
-              currentEdgePreset === '1920'
-                ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-300 border border-cyan-400/40 shadow-sm'
-                : 'text-gray-400 hover:text-gray-200 hover:bg-white/[0.03]'
+              edgePreset === '1920'
+                ? 'bg-[var(--studio-primary)] text-[var(--studio-primary-ink)] border-[var(--studio-primary)] font-semibold'
+                : 'bg-[var(--studio-surface)] text-[var(--studio-ink-secondary)] border-[var(--studio-border)] hover:border-[var(--studio-border-strong)] hover:text-[var(--studio-ink)]'
             "
-            @click="currentEdgePreset = '1920'"
+            @click="selectEdgePreset('1920')"
           >
             1920px
           </button>
           <button
             type="button"
-            class="h-full flex items-center justify-center px-1.5 text-xs font-medium rounded-lg transition-all duration-200 cursor-pointer"
+            class="px-2 py-2 rounded-lg text-xs mono tabular-nums font-medium border transition-colors cursor-pointer text-center"
             :class="
-              currentEdgePreset === '1280'
-                ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-300 border border-cyan-400/40 shadow-sm'
-                : 'text-gray-400 hover:text-gray-200 hover:bg-white/[0.03]'
+              edgePreset === '1280'
+                ? 'bg-[var(--studio-primary)] text-[var(--studio-primary-ink)] border-[var(--studio-primary)] font-semibold'
+                : 'bg-[var(--studio-surface)] text-[var(--studio-ink-secondary)] border-[var(--studio-border)] hover:border-[var(--studio-border-strong)] hover:text-[var(--studio-ink)]'
             "
-            @click="currentEdgePreset = '1280'"
+            @click="selectEdgePreset('1280')"
           >
             1280px
           </button>
           <button
             type="button"
-            class="h-full flex items-center justify-center px-1.5 text-xs font-medium rounded-lg transition-all duration-200 cursor-pointer"
+            class="px-2 py-2 rounded-lg text-xs font-medium border transition-colors cursor-pointer text-center"
             :class="
-              currentEdgePreset === 'custom'
-                ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-300 border border-cyan-400/40 shadow-sm'
-                : 'text-gray-400 hover:text-gray-200 hover:bg-white/[0.03]'
+              edgePreset === 'custom'
+                ? 'bg-[var(--studio-primary)] text-[var(--studio-primary-ink)] border-[var(--studio-primary)] font-semibold'
+                : 'bg-[var(--studio-surface)] text-[var(--studio-ink-secondary)] border-[var(--studio-border)] hover:border-[var(--studio-border-strong)] hover:text-[var(--studio-ink)]'
             "
-            @click="currentEdgePreset = 'custom'"
+            @click="selectEdgePreset('custom')"
           >
             {{ t("settings.edgeCustom") }}
           </button>
         </div>
-      </div>
-    </div>
 
-    <!-- 底部状态提示与自定义输入栏 -->
-    <div class="mt-4 pt-3.5 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs">
-      <div
-        v-if="currentOutput === 'keep'"
-        class="flex items-center gap-2 text-gray-400"
-      >
-        <span class="text-cyan-400 font-bold">✓</span>
-        <span>{{ t("settings.keepDesc") }}</span>
-      </div>
-      <div
-        v-else-if="currentOutput === 'jpeg'"
-        class="flex items-center gap-2 text-amber-300/90"
-      >
-        <span class="font-bold">*</span>
-        <span>{{ t("settings.jpegWhiteBgNotice") }}</span>
-      </div>
-      <div
-        v-else
-        class="flex items-center gap-2 text-cyan-300/90"
-      >
-        <span class="font-bold">*</span>
-        <span>{{ t("settings.pngSmartDesc") }}</span>
-      </div>
-
-      <div class="flex flex-wrap items-center gap-3 ml-auto">
-        <span
-          v-if="currentOutput !== 'keep'"
-          class="text-[11px] font-mono text-cyan-300 bg-cyan-950/50 border border-cyan-500/30 px-2.5 py-1 rounded-lg"
+        <!-- 自定义像素输入区（保持稳定挂载，输入 1920/1280 时不卸载失焦） -->
+        <div
+          v-if="edgePreset === 'custom'"
+          class="rounded-xl bg-[var(--studio-surface-muted)] border border-[var(--studio-border)] p-3 space-y-2"
         >
-          {{ t("settings.recommended") }} 80
-        </span>
-
-        <div v-if="currentEdgePreset === 'custom'" class="flex items-center gap-2">
-          <span class="text-xs text-gray-400">{{ t("settings.maxLongEdge") }}:</span>
-          <input
-            v-model.number="customEdgeValue"
-            type="number"
-            :aria-label="t('settings.maxLongEdge')"
-            min="100"
-            max="10000"
-            step="10"
-            class="w-28 bg-gray-950/80 border border-cyan-500/40 rounded-lg px-3 py-1 text-xs text-gray-200 focus:outline-none focus:border-cyan-400 font-mono"
-            :placeholder="t('settings.pixelPlaceholder')"
-          />
-          <span class="text-xs text-gray-400 font-mono">px</span>
+          <div class="flex items-center gap-2">
+            <input
+              :value="customEdgeInput"
+              type="number"
+              inputmode="numeric"
+              :aria-label="t('settings.maxLongEdge')"
+              min="1"
+              max="10000"
+              step="10"
+              class="w-full min-w-0 bg-[var(--studio-surface)] border border-[var(--studio-border-strong)] rounded-lg px-3 py-2 text-xs mono tabular-nums text-[var(--studio-ink)] focus:outline-none focus:border-[var(--studio-cobalt)]"
+              :placeholder="t('settings.pixelPlaceholder')"
+              @input="handleCustomEdgeInput"
+              @blur="handleCustomEdgeBlur"
+            />
+            <span class="text-xs mono font-medium text-[var(--studio-ink-secondary)] shrink-0">px</span>
+          </div>
+          <p class="text-[11px] text-[var(--studio-ink-muted)]">
+            {{ t("settings.customEdgeHint") }}
+          </p>
         </div>
-      </div>
+      </section>
     </div>
   </fieldset>
 </template>

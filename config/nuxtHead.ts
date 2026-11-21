@@ -6,7 +6,7 @@ export default {
   meta: [
     { charset: "utf-8" },
     { name: "viewport", content: "width=device-width, initial-scale=1.0" },
-    { name: "theme-color", content: "#05080f" },
+    { name: "theme-color", content: "#f5f5f2" },
     ...(siteConfig.googleVerification
       ? [{ name: "google-site-verification", content: siteConfig.googleVerification }] : []),
     ...(siteConfig.bingVerification

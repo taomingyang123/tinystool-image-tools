@@ -3,6 +3,7 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 const { locale } = useI18n();
+const { isDark } = useTheme();
 
 const htmlLang = computed(() => {
   if (locale.value === "zh") return "zh-CN";
@@ -13,7 +14,7 @@ const htmlLang = computed(() => {
 useHead(() => ({
   htmlAttrs: {
     lang: htmlLang.value,
-    class: "dark",
+    class: isDark.value ? "dark" : "",
   },
 }));
 </script>

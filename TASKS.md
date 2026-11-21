@@ -204,11 +204,10 @@
   1. 移除首页、隐私页及 FAQ 模块多余的内层窄宽度约束（`max-w-5xl` / `max-w-4xl` / `max-w-3xl` 与额外水平内边距），使页面主体内容宽度与顶部导航栏（`SiteHeader`）及页脚（`SiteFooter`）在 `.site-container` 内完全对齐；
   2. 清理 `assets/css/main.css` 中覆盖 Tailwind `gap-*` 的全局 `.grid` 冲突样式；
   3. 重构 `components/ImageSettings.vue` 三列配置布局，统一各列标题行与控件区高度（`h-11`）及水平基线对齐，将模式说明置于底部统一提示栏，消除中间列下沉错位与按钮间距异常。
-- **验证**：2026-10-19 静态：typecheck 与词条检查通过；运行时：88 项测试、SSG、SEO 通过；系统级：本地 Chrome 20 项既有流程通过，补充多语言窄屏及输入检查发现问题，尚未通过本任务全部验收。早期 Node 读取权限问题已消失。
-- **状态**：blocked
-- **进展**：2026-10-14 完成 `pages/index.vue`、`pages/privacy.vue`、`components/ImageFaq.vue`、`components/ImageSettings.vue` 与 `assets/css/main.css` 改造及静态核对。2026-10-19 环境已可运行 Node 22.17.0 / Yarn 4.5.0，`yarn check`（88 项测试、SSG 与 SEO）通过，真实 Chrome 20 项既有流程通过，但新增场景复现英文 390px 配置区溢出，以及自定义尺寸输入 1920 时输入框消失失焦；桌面 1440px 导航与面板左右边界一致。保持 `doing`，当前待处理为真实 UI 问题，不再将 Node 权限作为当前阻碍。
-- **断点**：2026-11-03 用户要求立即部署，切换至 T04-19；窄屏布局与自定义输入问题保留待续。
-- **证据**：原改造 Git diff 核对；2026-10-19 `yarn check` 通过；[布局与输入诊断](docs/verification/2026-10-19-layout.json)、[当前待办复核](docs/verification/2026-10-19-pending-review.md)。
+- **验证**：静态：`yarn typecheck` 0 错误；运行时：`yarn test:unit` 88/88、`yarn generate`、`yarn seo-check` 通过；系统级：本地 Chrome 20 项及三语 320px/375px/390px 窄屏无溢出、自定义尺寸输入 `1920` 保持挂载与焦点全部通过（由 T04-20 整体重构并闭环）。
+- **状态**：done
+- **进展**：2026-10-14 完成初版改造；2026-10-19 复现窄屏溢出与自定义输入失焦；2026-11-03 切换至 T04-19 暂停；2026-11-21 在 T04-20 全面视觉与布局重构中彻底根治三语 320/375/390px 溢出及自定义尺寸输入失焦问题，并统一导航/主体/页脚 `max-w-[1200px]` 对齐，闭环完成。
+- **证据**：2026-11-21 `yarn check`（88 测试/SSG/6 页 SEO）、本地 Chrome 20 项及三语 320/375/390px 零溢出与自定义 `1920` 焦点实测；详见 `memory/261121-23-全站样式布局与交互视觉重构.md`。
 
 #### T04-14 · 修复透明图片缩放边缘与单像素采样
 - **行为**：以预乘 Alpha 方式重采样透明图片，修正缩到 1px 时只取左上/首像素的问题，补像素级与真实编解码回归。
@@ -253,6 +252,17 @@
 - **进展补充**：2026-11-04 正式域名已返回 HTTPS 200，六页面和规范重定向可访问；seo:live 发现静态 404 缺少 noindex（error.vue 客户端标记未进入 SSG fallback），在 T04-19 内补齐构建产物及静态门禁。正式域名 Chrome 的压缩下载、透明度、取消重试均通过，但主域自动 Web Analytics 注入外部 beacon，被 CSP 阻止；Cloudflare 免费账户的细分统计规则不可用；改为仅在图片子站的 HTML 响应设置 no-transform，阻止自动注入并保留静态资源缓存，主站统计设置未修改。
 - **证据**：[部署结果](docs/DEPLOYMENT-RESULTS.md)、[线上 Chrome](docs/verification/2026-11-03-production-browser-check.json)；GitHub CI #6 全通过。2026-11-04 正式域名 HTTPS、六页面 SEO/重定向/404、真实 Chrome 20 项（含 WASM MIME/CSP、压缩下载、无外部请求）全部通过，退出码 0；修复已发布为 fe2f595，GitHub CI #8 成功。详见 [域名浏览器证据](docs/verification/2026-11-04-domain-browser-check.json)、[线上 SEO](docs/verification/2026-11-04-seo-live.txt)。已知 T04-13～T04-16 问题及真机验收待办继续保留。
 
+#### T04-20 · 全面重构样式、布局、排版与交互视觉体系
+- **行为**：
+  1. 彻底重构全站视觉体系与设计语言：淘汰深色霓虹渐变玻璃拟态风格，建立以「Swiss Optical Studio（浅色工作室主视觉 + 可选暗房模式切换）」为核心的高对比度、无渐变噪点、精确网格排版与等宽数字对齐系统；
+  2. 重构首页与隐私页布局架构：首页采用紧凑编辑式头部 + 桌面端左侧粘滞参数检查器（`ImageSettings`）与右侧主画布/任务队列舞台（`ImageDropzone` + `ImageTaskList`）双栏工作台布局；上传图片后上传区自动收拢为紧凑顶部加图条，让任务列表与压缩收益统计成为绝对焦点；
+  3. 同步修复 T04-13 遗留的 UI 交互缺陷：彻底解决自定义最长边输入 `1920`/`1280`/`800` 时输入框卸载失焦问题，以及英文/日文 320px~390px 窄屏下质量滑块内部水平溢出问题；
+  4. 升级 `ImageCompareModal`（透明棋盘格舞台 + 居中对齐标尺手柄）、`ImageFaq`（架构规格矩阵 + 编号手风琴）、`SiteHeader`/`SiteFooter`/`error.vue`/`favicon.svg` 与三语言词条，并在打包 ZIP 期间禁用重压与清空按钮。
+- **验证**：静态：`yarn typecheck` 0 错误；运行时：`yarn test:unit` 12 文件 88/88 全绿，`yarn generate` 20 条路由预渲染成功，`yarn seo-check` 6 页面全部通过；系统级：本地真实 Chrome 20/20 项 E2E 全通过，实测中/英/日三语 320px/375px/390px 零页面及内部溢出，自定义尺寸输入 `1920` 保持挂载与焦点，桌面端浅色/暗房/对比弹窗/隐私页与移动端实渲染截图复核通过。
+- **状态**：done
+- **进展**：2026-11-21 完成全站设计令牌、浅色工作室与暗房双模式、12 栏双栏工作台、透明棋盘格画质对比弹窗、技术规格矩阵与多语言词条对称更新，并完成三层验证与视觉截图打磨。
+- **证据**：`yarn check` 退出码 0（88/88 单元、SSG 20 路由、6 页面 SEO）；`yarn test:e2e` 20/20 PASS；三语 320/375/390px 零溢出及自定义 `1920` 焦点实测 PASS；详见 `memory/261121-23-全站样式布局与交互视觉重构.md`。
+
 ### 已归档任务（历史模板）
 
 #### F01 · 接入已有项目协作文档
@@ -263,8 +273,8 @@
 
 - todo：7（T04-11、T04-12、T04-14～T04-18）
 - doing：0
-- blocked：1（T04-13）
-- done：24（既有 22 项含 F01 归档 + T04-10 本地审查 + T04-19 部署）
-- 总数：32
-- 已启动或受阻数 = doing + blocked + done：25
-- 收尾比例 = done / (doing + blocked + done)：96.0%（24 / 25；不含 todo，不代表生产验收通过）
+- blocked：0
+- done：26（既有 24 项 + T04-13 闭环 + T04-20）
+- 总数：33
+- 已启动或受阻数 = doing + blocked + done：26
+- 收尾比例 = done / (doing + blocked + done)：100.0%（26 / 26；不含 todo，不代表生产真机验收通过）

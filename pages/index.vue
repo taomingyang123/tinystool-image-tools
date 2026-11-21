@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import type { QueueItem } from "../composables/useCompressionQueue.client";
 import { downloadTask } from "../lib/image/download";
 
@@ -68,81 +68,103 @@ const handleDownloadActiveCompare = () => {
 </script>
 
 <template>
-  <div class="w-full py-2 md:py-4 space-y-10">
-    <!-- Hero 视觉区 -->
-    <header class="text-center space-y-4">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-cyan-950/60 text-cyan-300 border border-cyan-500/30 shadow-sm shadow-cyan-500/10">
-        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-        <span>{{ t("settings.localSafeBadge") }}</span>
+  <div class="w-full space-y-10">
+    <!-- 紧凑编辑式头部与硬件级规格条 -->
+    <header class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-end pb-6 border-b border-[var(--studio-border)]">
+      <div class="lg:col-span-6 space-y-2.5">
+        <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md text-xs mono font-medium bg-[var(--studio-emerald-bg)] text-[var(--studio-emerald-ink)] border border-[var(--studio-emerald-border)]">
+          <span class="w-1.5 h-1.5 rounded-full bg-[var(--studio-emerald)]" aria-hidden="true"></span>
+          <span>{{ t("settings.localSafeBadge") }}</span>
+        </div>
+
+        <h1 class="text-2xl sm:text-4xl font-bold tracking-tight text-[var(--studio-ink)] leading-tight">
+          {{ t("home.heading") }}
+        </h1>
+
+        <p class="text-sm sm:text-base text-[var(--studio-ink-secondary)] max-w-xl leading-relaxed">
+          {{ t("home.subheading") }}
+        </p>
       </div>
 
-      <h1 class="text-3xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-100 via-gray-200 to-gray-400 tracking-tight leading-tight">
-        {{ t("home.heading") }}
-      </h1>
-
-      <p class="text-sm sm:text-base text-gray-400 max-w-2xl mx-auto leading-relaxed">
-        {{ t("home.subheading") }}
-      </p>
-
-      <!-- 核心特点亮点 -->
-      <div class="flex flex-wrap items-center justify-center gap-4 pt-2 text-xs text-gray-400">
-        <div class="flex items-center gap-1.5">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-          </svg>
-          <span>{{ t("home.featureNoUpload") }}</span>
+      <!-- 3项技术规格摘要卡 -->
+      <div class="lg:col-span-6 studio-card rounded-2xl grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[var(--studio-border)] overflow-hidden">
+        <div class="px-3.5 py-2.5 sm:py-3 space-y-0.5">
+          <div class="text-[10px] mono uppercase tracking-wider text-[var(--studio-ink-muted)]">
+            {{ t("home.specLocalLabel") }}
+          </div>
+          <div class="text-xs font-semibold text-[var(--studio-ink)]">
+            {{ t("home.specLocalValue") }}
+          </div>
         </div>
-        <div class="flex items-center gap-1.5">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-cyan-400" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" />
-          </svg>
-          <span>{{ t("home.featureFastWasm") }}</span>
+        <div class="px-3.5 py-2.5 sm:py-3 space-y-0.5">
+          <div class="text-[10px] mono uppercase tracking-wider text-[var(--studio-ink-muted)]">
+            {{ t("home.specEngineLabel") }}
+          </div>
+          <div class="text-xs font-semibold text-[var(--studio-ink)]">
+            {{ t("home.specEngineValue") }}
+          </div>
         </div>
-        <div class="flex items-center gap-1.5">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-purple-400" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z" />
-            <path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd" />
-          </svg>
-          <span>{{ t("home.featureBatch") }}</span>
+        <div class="px-3.5 py-2.5 sm:py-3 space-y-0.5">
+          <div class="text-[10px] mono uppercase tracking-wider text-[var(--studio-ink-muted)]">
+            {{ t("home.specBatchLabel") }}
+          </div>
+          <div class="text-xs font-semibold text-[var(--studio-ink)]">
+            {{ t("home.specBatchValue") }}
+          </div>
         </div>
       </div>
     </header>
 
-    <!-- 客户端核心工作区 -->
+    <!-- 主工作台：左侧参数检查器 + 右侧上传画布与任务队列 -->
     <ClientOnly>
-      <div class="space-y-6">
-        <!-- 压缩与格式配置面板 -->
-        <ImageSettings
-          v-model="globalOptions"
-          :disabled="isProcessing"
-        />
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div class="lg:col-span-4 lg:sticky lg:top-20 min-w-0">
+          <ImageSettings
+            v-model="globalOptions"
+            :disabled="isProcessing"
+          />
+        </div>
 
-        <!-- 拖拽上传区 -->
-        <ImageDropzone
-          @files-added="addFiles"
-        />
+        <div class="lg:col-span-8 min-w-0 space-y-5">
+          <ImageDropzone
+            :compact="tasks.length > 0"
+            @files-added="addFiles"
+          />
 
-        <p v-if="admissionError" role="alert" class="text-sm text-amber-300">{{ t(`errors.${admissionError}`) }}</p>
+          <p
+            v-if="admissionError"
+            role="alert"
+            class="px-4 py-3 rounded-xl text-xs sm:text-sm font-medium bg-[var(--studio-amber-bg)] text-[var(--studio-amber-ink)] border border-[var(--studio-amber-border)]"
+          >
+            {{ t(`errors.${admissionError}`) }}
+          </p>
 
-        <!-- 任务列表与控制栏 -->
-        <ImageTaskList
-          :tasks="tasks"
-          :stats="stats"
-          :is-processing="isProcessing"
-          @cancel="cancelTask"
-          @retry="retryTask"
-          @recompress-all="recompressAll"
-          @remove="removeTask"
-          @clear-all="clearAll"
-          @compare="handleOpenCompare"
-        />
+          <ImageTaskList
+            :tasks="tasks"
+            :stats="stats"
+            :is-processing="isProcessing"
+            @cancel="cancelTask"
+            @retry="retryTask"
+            @recompress-all="recompressAll"
+            @remove="removeTask"
+            @clear-all="clearAll"
+            @compare="handleOpenCompare"
+          />
+        </div>
       </div>
 
       <!-- SSG 预渲染占位骨架屏 -->
       <template #fallback>
-        <div class="glass rounded-3xl p-12 text-center border border-white/10 space-y-4">
-          <div class="w-12 h-12 rounded-full bg-cyan-500/20 mx-auto animate-pulse"></div>
-          <p class="text-sm text-gray-400">{{ t("home.engineLoading") }}</p>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <div class="lg:col-span-4 studio-card rounded-2xl p-6 space-y-4">
+            <div class="h-4 w-28 rounded bg-[var(--studio-surface-subtle)]"></div>
+            <div class="h-10 w-full rounded-xl bg-[var(--studio-surface-subtle)]"></div>
+            <div class="h-16 w-full rounded-xl bg-[var(--studio-surface-subtle)]"></div>
+          </div>
+          <div class="lg:col-span-8 studio-card rounded-2xl p-12 text-center space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-[var(--studio-surface-subtle)] mx-auto"></div>
+            <p class="text-sm text-[var(--studio-ink-secondary)]">{{ t("home.engineLoading") }}</p>
+          </div>
         </div>
       </template>
     </ClientOnly>
@@ -160,7 +182,7 @@ const handleDownloadActiveCompare = () => {
       @download="handleDownloadActiveCompare"
     />
 
-    <!-- SEO 常见问答模块 -->
+    <!-- 技术规格矩阵与常见问答 -->
     <ImageFaq />
   </div>
 </template>

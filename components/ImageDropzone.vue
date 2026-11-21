@@ -3,10 +3,12 @@ import { ref, onMounted, onUnmounted } from "vue";
 
 interface Props {
   disabled?: boolean;
+  compact?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   disabled: false,
+  compact: false,
 });
 
 const emit = defineEmits<{
@@ -66,7 +68,6 @@ const handlePaste = (e: ClipboardEvent) => {
     if (item.kind === "file" && item.type.startsWith("image/")) {
       const file = item.getAsFile();
       if (file) {
-        // 为粘贴的图片起一个带时间戳的友好名称
         const ext = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
         const renamed = new File([file], `clipboard-${Date.now()}.${ext}`, { type: file.type });
         imageFiles.push(renamed);
@@ -93,11 +94,12 @@ onUnmounted(() => {
     tabindex="0"
     role="button"
     :aria-label="t('uploader.dragOrClick')"
-    class="relative rounded-3xl p-8 md:p-12 text-center transition-all duration-300 cursor-pointer overflow-hidden group select-none border-2 border-dashed focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:border-cyan-400"
+    class="relative rounded-2xl transition-all duration-200 cursor-pointer select-none border border-dashed group focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--studio-cobalt)]"
     :class="[
+      compact ? 'px-5 py-4' : 'px-6 py-12 sm:py-16 text-center studio-checkerboard-sm',
       isDragOver
-        ? 'border-cyan-400 bg-cyan-950/20 scale-[1.01] shadow-2xl shadow-cyan-500/10'
-        : 'border-white/15 bg-gradient-to-b from-white/[0.04] to-white/[0.01] hover:border-cyan-400/50 hover:bg-white/[0.06] shadow-xl',
+        ? 'border-[var(--studio-emerald)] bg-[var(--studio-emerald-bg)] shadow-md'
+        : 'border-[var(--studio-border-strong)] bg-[var(--studio-surface)] hover:border-[var(--studio-ink)]',
       disabled ? 'opacity-50 pointer-events-none' : '',
     ]"
     @dragover="handleDragOver"
@@ -107,14 +109,6 @@ onUnmounted(() => {
     @keydown.enter.prevent="triggerFileInput"
     @keydown.space.prevent="triggerFileInput"
   >
-    <!-- 背景流光装饰 -->
-    <div
-      class="absolute -top-24 -left-24 w-60 h-60 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-cyan-500/20 transition-all duration-500"
-    ></div>
-    <div
-      class="absolute -bottom-24 -right-24 w-60 h-60 bg-purple-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-purple-500/20 transition-all duration-500"
-    ></div>
-
     <input
       ref="fileInputRef"
       type="file"
@@ -124,56 +118,81 @@ onUnmounted(() => {
       @change="handleFileSelect"
     />
 
-    <div class="relative z-10 flex flex-col items-center justify-center space-y-4">
-      <!-- 拖拽图标徽章 -->
-      <div
-        class="w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110 shadow-lg"
-        :class="
-          isDragOver
-            ? 'bg-gradient-to-tr from-cyan-400 to-purple-400 text-gray-950 scale-110'
-            : 'bg-gradient-to-tr from-cyan-500/20 to-purple-500/20 text-cyan-300 border border-white/10'
-        "
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="w-8 h-8 md:w-10 md:h-10"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
+    <!-- 紧凑条模式（当队列已有任务时） -->
+    <div v-if="compact" class="flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <div
+          class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border transition-colors"
+          :class="
+            isDragOver
+              ? 'bg-[var(--studio-emerald)] text-white border-[var(--studio-emerald)]'
+              : 'bg-[var(--studio-surface-subtle)] text-[var(--studio-ink)] border-[var(--studio-border)]'
+          "
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.8"
-            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-          />
-        </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+        </div>
+        <div class="min-w-0">
+          <p class="text-xs sm:text-sm font-semibold text-[var(--studio-ink)] truncate">
+            {{ isDragOver ? t("uploader.dropNow") : t("uploader.compactHint") }}
+          </p>
+          <p class="text-[11px] mono text-[var(--studio-ink-muted)] truncate">
+            JPG · PNG · WebP · {{ t("uploader.maxSizeBadge") }}
+          </p>
+        </div>
       </div>
 
-      <!-- 文字提示 -->
-      <div class="space-y-1.5">
-        <h3 class="text-lg md:text-xl font-bold text-gray-100 tracking-tight">
-          {{ isDragOver ? t("uploader.dropNow") : t("uploader.dragOrClick") }}
-        </h3>
-        <p class="text-xs md:text-sm text-gray-400 max-w-md mx-auto">
-          {{ t("uploader.pasteSupported") }}
-        </p>
-      </div>
+      <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--studio-surface-subtle)] text-[var(--studio-ink)] border border-[var(--studio-border)] group-hover:bg-[var(--studio-primary)] group-hover:text-[var(--studio-primary-ink)] group-hover:border-[var(--studio-primary)] transition-colors shrink-0">
+        {{ t("uploader.addMoreBtn") }}
+      </span>
+    </div>
 
-      <!-- 格式与限制标签 -->
-      <div class="flex flex-wrap items-center justify-center gap-2 pt-2">
-        <span class="px-2.5 py-1 rounded-full text-[11px] font-mono font-medium bg-cyan-950/60 text-cyan-300 border border-cyan-500/30">
-          JPG / JPEG
-        </span>
-        <span class="px-2.5 py-1 rounded-full text-[11px] font-mono font-medium bg-purple-950/60 text-purple-300 border border-purple-500/30">
-          PNG
-        </span>
-        <span class="px-2.5 py-1 rounded-full text-[11px] font-mono font-medium bg-emerald-950/60 text-emerald-300 border border-emerald-500/30">
-          WebP
-        </span>
-        <span class="px-2.5 py-1 rounded-full text-[11px] font-mono font-medium bg-gray-900/60 text-gray-400 border border-white/5">
-          {{ t("uploader.maxSizeBadge") }}
-        </span>
+    <!-- 完整工作室取景框画布模式（队列为空时） -->
+    <div v-else class="relative">
+      <!-- 取景器四角校准线 -->
+      <span class="hidden sm:block absolute -top-6 -left-1 w-4 h-4 border-t-2 border-l-2 border-[var(--studio-border-strong)] group-hover:border-[var(--studio-ink)] transition-colors" aria-hidden="true"></span>
+      <span class="hidden sm:block absolute -top-6 -right-1 w-4 h-4 border-t-2 border-r-2 border-[var(--studio-border-strong)] group-hover:border-[var(--studio-ink)] transition-colors" aria-hidden="true"></span>
+      <span class="hidden sm:block absolute -bottom-6 -left-1 w-4 h-4 border-b-2 border-l-2 border-[var(--studio-border-strong)] group-hover:border-[var(--studio-ink)] transition-colors" aria-hidden="true"></span>
+      <span class="hidden sm:block absolute -bottom-6 -right-1 w-4 h-4 border-b-2 border-r-2 border-[var(--studio-border-strong)] group-hover:border-[var(--studio-ink)] transition-colors" aria-hidden="true"></span>
+
+      <div class="max-w-md mx-auto bg-[var(--studio-surface)]/95 backdrop-blur-sm rounded-2xl border border-[var(--studio-border)] px-6 py-8 shadow-sm flex flex-col items-center space-y-4">
+        <div
+          class="w-14 h-14 rounded-2xl flex items-center justify-center border transition-transform duration-200 group-hover:-translate-y-0.5"
+          :class="
+            isDragOver
+              ? 'bg-[var(--studio-emerald)] text-white border-[var(--studio-emerald)]'
+              : 'bg-[var(--studio-primary)] text-[var(--studio-primary-ink)] border-[var(--studio-primary)]'
+          "
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+          </svg>
+        </div>
+
+        <div class="space-y-1.5">
+          <h3 class="text-base sm:text-lg font-bold tracking-tight text-[var(--studio-ink)]">
+            {{ isDragOver ? t("uploader.dropNow") : t("uploader.dragOrClick") }}
+          </h3>
+          <p class="text-xs sm:text-sm text-[var(--studio-ink-secondary)]">
+            {{ t("uploader.pasteSupported") }}
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-center gap-1.5 pt-1">
+          <span class="px-2 py-0.5 rounded text-[11px] mono font-medium bg-[var(--studio-surface-subtle)] text-[var(--studio-ink)] border border-[var(--studio-border)]">
+            JPG / JPEG
+          </span>
+          <span class="px-2 py-0.5 rounded text-[11px] mono font-medium bg-[var(--studio-surface-subtle)] text-[var(--studio-ink)] border border-[var(--studio-border)]">
+            PNG
+          </span>
+          <span class="px-2 py-0.5 rounded text-[11px] mono font-medium bg-[var(--studio-surface-subtle)] text-[var(--studio-ink)] border border-[var(--studio-border)]">
+            WebP
+          </span>
+          <span class="px-2 py-0.5 rounded text-[11px] mono text-[var(--studio-ink-muted)] border border-[var(--studio-border)]">
+            {{ t("uploader.maxSizeBadge") }}
+          </span>
+        </div>
       </div>
     </div>
   </div>

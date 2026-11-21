@@ -6,65 +6,69 @@ usePageSeo({
   descriptionKey: "privacy.description",
   schemaType: "WebPage",
 });
+
+const metadata = [
+  { labelKey: "privacy.metaScopeLabel", valueKey: "privacy.metaScopeValue" },
+  { labelKey: "privacy.metaEngineLabel", valueKey: "privacy.metaEngineValue" },
+  { labelKey: "privacy.metaStorageLabel", valueKey: "privacy.metaStorageValue" },
+  { labelKey: "privacy.metaHostLabel", valueKey: "privacy.metaHostValue" },
+] as const;
+
+const sections = [
+  { num: "01", titleKey: "privacy.s1Title", contentKey: "privacy.s1Content" },
+  { num: "02", titleKey: "privacy.s2Title", contentKey: "privacy.s2Content" },
+  { num: "03", titleKey: "privacy.s3Title", contentKey: "privacy.s3Content" },
+  { num: "04", titleKey: "privacy.s4Title", contentKey: "privacy.s4Content" },
+] as const;
 </script>
 
 <template>
-  <div class="w-full py-2 md:py-4 space-y-8">
-    <header class="space-y-3 border-b border-white/10 pb-6">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-emerald-950/60 text-emerald-300 border border-emerald-500/30">
-        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+  <div class="w-full space-y-8">
+    <header class="space-y-3 pb-6 border-b border-[var(--studio-border)]">
+      <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md text-xs mono font-medium bg-[var(--studio-emerald-bg)] text-[var(--studio-emerald-ink)] border border-[var(--studio-emerald-border)]">
+        <span class="w-1.5 h-1.5 rounded-full bg-[var(--studio-emerald)]" aria-hidden="true"></span>
         <span>{{ t("privacy.badge") }}</span>
       </div>
 
-      <h1 class="text-2xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-100 via-gray-200 to-gray-400 tracking-tight">
+      <h1 class="text-2xl sm:text-4xl font-bold tracking-tight text-[var(--studio-ink)]">
         {{ t("privacy.title") }}
       </h1>
 
-      <p class="text-xs md:text-sm text-gray-400 font-mono">
+      <p class="text-xs sm:text-sm mono text-[var(--studio-ink-muted)]">
         Tiny Image (image.tinystool.org) · 100% Client-Side Processing
       </p>
     </header>
 
-    <article class="space-y-6 text-gray-300 leading-relaxed text-sm md:text-base">
-      <section class="glass rounded-2xl p-6 border border-white/10 space-y-2.5">
-        <h2 class="text-base md:text-lg font-bold text-gray-100 flex items-center gap-2">
-          <span class="text-cyan-400 font-mono">#</span>
-          <span>{{ t("privacy.s1Title") }}</span>
-        </h2>
-        <p class="text-gray-400 text-xs md:text-sm leading-relaxed">
-          {{ t("privacy.s1Content") }}
-        </p>
-      </section>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <!-- 左侧：声明摘要 -->
+      <aside class="lg:col-span-4 lg:sticky lg:top-20 studio-card rounded-2xl overflow-hidden">
+        <dl class="divide-y divide-[var(--studio-border)] text-xs">
+          <div v-for="item in metadata" :key="item.labelKey" class="px-4 py-3.5 space-y-1">
+            <dt class="mono uppercase tracking-wider text-[11px] text-[var(--studio-ink-muted)]">
+              {{ t(item.labelKey) }}
+            </dt>
+            <dd class="font-semibold text-[var(--studio-ink)]">
+              {{ t(item.valueKey) }}
+            </dd>
+          </div>
+        </dl>
+      </aside>
 
-      <section class="glass rounded-2xl p-6 border border-white/10 space-y-2.5">
-        <h2 class="text-base md:text-lg font-bold text-gray-100 flex items-center gap-2">
-          <span class="text-cyan-400 font-mono">#</span>
-          <span>{{ t("privacy.s2Title") }}</span>
-        </h2>
-        <p class="text-gray-400 text-xs md:text-sm leading-relaxed">
-          {{ t("privacy.s2Content") }}
-        </p>
-      </section>
-
-      <section class="glass rounded-2xl p-6 border border-white/10 space-y-2.5">
-        <h2 class="text-base md:text-lg font-bold text-gray-100 flex items-center gap-2">
-          <span class="text-cyan-400 font-mono">#</span>
-          <span>{{ t("privacy.s3Title") }}</span>
-        </h2>
-        <p class="text-gray-400 text-xs md:text-sm leading-relaxed">
-          {{ t("privacy.s3Content") }}
-        </p>
-      </section>
-
-      <section class="glass rounded-2xl p-6 border border-white/10 space-y-2.5">
-        <h2 class="text-base md:text-lg font-bold text-gray-100 flex items-center gap-2">
-          <span class="text-cyan-400 font-mono">#</span>
-          <span>{{ t("privacy.s4Title") }}</span>
-        </h2>
-        <p class="text-gray-400 text-xs md:text-sm leading-relaxed">
-          {{ t("privacy.s4Content") }}
-        </p>
-      </section>
-    </article>
+      <!-- 右侧：正式条款正文 -->
+      <article class="lg:col-span-8 space-y-4">
+        <section
+          v-for="sec in sections"
+          :key="sec.num"
+          class="studio-card rounded-2xl p-6 space-y-2.5"
+        >
+          <h2 class="text-base sm:text-lg font-bold text-[var(--studio-ink)]">
+            {{ t(sec.titleKey) }}
+          </h2>
+          <p class="text-sm text-[var(--studio-ink-secondary)] leading-relaxed">
+            {{ t(sec.contentKey) }}
+          </p>
+        </section>
+      </article>
+    </div>
   </div>
 </template>
